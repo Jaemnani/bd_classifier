@@ -52,7 +52,7 @@ def set_model_compile(model, finetune):
             metrics='accuracy',
         )
     else:
-        model.trainable = True
+        # model.trainable = True
         model.compile(
             optimizer = keras.optimizers.Adam(1e-5),
             loss = keras.losses.CategoricalCrossentropy(),

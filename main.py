@@ -15,14 +15,14 @@ def main(opt):
     train_X, test_x, train_Y, test_y = train_test_split(total_image_list, total_dirty_labels, test_size=2000./len(total_image_list), random_state=42)
     train_x, valid_x, train_y, valid_y = train_test_split(train_X, train_Y, test_size = 0.1, random_state=42)
     
-    model = get_bd_model()
+    # model = get_bd_model()
+    model = get_bd_model(freeze=False)
     
     train_datas = DataGenerator(train_x, train_y, opt.batch_size, model.input_shape)
     valid_datas = DataGenerator(valid_x, valid_y, opt.batch_size, model.input_shape)
     test_datas = DataGenerator(test_x, test_y, opt.batch_size, model.input_shape)
     
     save_path = set_save_path(opt.save_dir + model.name)
-    
     callbacks = set_model_to_train(model, save_path)
     model.fit(train_datas, epochs=opt.epochs, validation_data = valid_datas, callbacks=callbacks)
     
