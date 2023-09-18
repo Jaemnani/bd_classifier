@@ -26,7 +26,7 @@ def set_gpu_memory_limit(memory_limit = 8192, device_type="GPU"):
 
 def parser_opt():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--epochs", dest="epochs", type=int, default=50, help="total training epochs")
+    parser.add_argument("--epochs", dest="epochs", type=int, default=30, help="total training epochs")
     parser.add_argument("--finetune_epochs", dest="finetune_epochs", type=int, default=10, help="total finetune epochs")
     parser.add_argument("--batch_size", dest="batch_size", type=int, default=32, help="total batch size")
     parser.add_argument("--broken_dir", dest="broken_dir", type=str, default="./dataset/datasets_broken/")
@@ -60,4 +60,7 @@ def set_model_compile(model, finetune):
         )
 
 def save_model(model, save_path):
-    model.save(save_path + model.name + ".h5")
+    model.save(save_path +"/"+ model.name + ".h5")
+    
+
+    
