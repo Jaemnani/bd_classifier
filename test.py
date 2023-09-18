@@ -1,28 +1,48 @@
+import os
+import numpy as np
+import keras
+import cv2
+from glob2 import glob
+from natsort import natsorted
 import tensorflow as tf
-from tensorflow.keras.applications import EfficientNetV2B0
+from train import set_gpu_memory_growth
 
-class YogaPose(tf.keras.Model):
-    def __init__(self, num_classes=30, freeze=False):
-        super(YogaPose, self).__init__()
-        self.base_model = EfficientNetV2B0(include_top=False, weights='imagenet')
+set_gpu_memory_growth()
 
-        # Freeze the pretrained weights
-        if freeze:
-            self.base_model.trainable = False
+img_list = glob("./test_images/*.jpg")
+img_list = natsorted(img_list)
 
-        self.top = tf.keras.Sequential([tf.keras.layers.GlobalAveragePooling2D(name="avg_pool"),
-                                       tf.keras.layers.BatchNormalization(),
-                                       tf.keras.layers.Dropout(0.5, name="top_dropout")])
-        self.classifier = tf.keras.layers.Dense(num_classes, activation="softmax", name="pred")
+model = keras.models.load_model("./outputs/efficientnetv2-b0_db_softmax/efficientnetv2-b0_db_softmax.h5")
 
-    def call(self, inputs, training=True):
-        x = self.base_model(inputs)
-        x = self.top(x)
-        x = self.classifier(x)
-        return x
+input_shape = model.input_shape[1:]
+input_size = input_shape[:-1]
+
+dummy = np.zeros(input_shape)
+dummy = np.expand_dims(dummy, axis=0)
+model.predict(dummy)
+
+for img_idx, img_path in enumerate(img_list):
+    print(os.path.basename(img_path), " : " , end="")
+    img = cv2.imread(img_path)
+    img = cv2.resize(img, input_size)
+    img = np.expand_dims(img, axis=0)
+    out = model.predict(img, verbose=0)
+    
+    isBroken = False
+    isDirty  = False
+    result_state = np.argmax(out)
+    result_score = np.max(out)
+    if result_state == 0:
+        isBroken = True
+    else:
+        if result_state > 3:
+            isDirty = True
+
+    if isBroken == True:
+        print("broken score(%.3f)"%(result_score))
+    else:
+        print("dirty(%d) score(%.3f)"%(result_state, result_score))
+    
 
 
-if __name__ == '__main__':
-    model = YogaPose(num_classes=107, freeze=True)
-    model.build(input_shape=(None, 224, 224, 3))
-    print(model.summary())
+
