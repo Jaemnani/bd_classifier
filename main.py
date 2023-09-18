@@ -1,10 +1,9 @@
-from train import set_gpu_memory_growth, parser_opt
+from train import set_gpu_memory_growth, parser_opt, set_model_to_train, save_model
 from dataset import get_broken_labels, get_dirty_labels, get_merge_datas
 from dataset import DataGenerator
 from sklearn.model_selection import train_test_split
-from model import get_bd_model, set_model_compile
-from model import get_callbacks
-from utils import make_dir
+from model import get_bd_model
+from utils import make_dir, set_save_path
 
 def main(opt):
     set_gpu_memory_growth()
@@ -22,18 +21,15 @@ def main(opt):
     valid_datas = DataGenerator(valid_x, valid_y, opt.batch_size, model.input_shape)
     test_datas = DataGenerator(test_x, test_y, opt.batch_size, model.input_shape)
     
-    save_path = opt.save_dir + model.name +"/"
-    make_dir(save_path)
-    # set_make_dir(save_path)
-
-    callbacks = get_callbacks(save_path)
-    set_model_compile(model)
-        
+    save_path = set_save_path(opt.save_dir + model.name)
+    
+    callbacks = set_model_to_train(model, save_path)
     model.fit(train_datas, epochs=opt.epochs, validation_data = valid_datas, callbacks=callbacks)
     
-    
-    return
-    
+    callbacks = set_model_to_train(model, save_path, finetune=True)
+    model.fit(train_datas, epochs=opt.finetune_epochs, validation_data=valid_datas, callbacks=callbacks)
+
+    save_model(model, save_path)
     
 if __name__ == "__main__":
     opt = parser_opt()

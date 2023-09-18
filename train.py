@@ -1,4 +1,5 @@
 import tensorflow as tf
+import keras
 import argparse
 
 def set_gpu_memory_growth(device_type="GPU"):
@@ -33,35 +34,30 @@ def parser_opt():
     parser.add_argument("--save_dir", dest="save_dir", type=str, default="./outputs/")
     return parser.parse_args()
     
-def get_save_path():
-    return "save_path/"
-    
-class Trainer:
-    def __init__(self, model, epochs, batch, loss_fn, optimizer):
-        self.model = model
-        self.epochs = epochs
-        self.batch = batch
-        self.loss_fn = loss_fn
+def set_model_to_train(model, save_path, finetune=False):
+    set_model_compile(model, finetune=finetune)
+    return get_callbacks(save_path)
 
-    def train(self, train_dataset, train_metric):
-        for epoch in range(self.epochs):
-            print("\nStart of epoch %d"%(epoch,))
-            for step, (x_batch_train, y_batch_train) in enumerate(train_dataset):
-                with tf.GradientTape() as tape:
-                    logits = self.model(x_batch_train)
-                    loss_value = self.loss_fn(y_batch_train, logits)
-                grads = tape.gradient(loss_value, self.model.trainable_weights)
-                self.optimizer.apply_gradients(zip(grads, self.model.trainable_weight))
+def get_callbacks(save_path):
+    callbacks = []
+    callbacks.append(tf.keras.callbacks.EarlyStopping(monitor='loss', patience=3))
+    callbacks.append(tf.keras.callbacks.ModelCheckpoint(filepath=save_path + "/checkpoints/", save_weights_only=True, monitor='val_accuracy', mode='max', save_best_only=True))
+    return callbacks
 
-                train_metric.update_state(y_batch_train, logits)
+def set_model_compile(model, finetune):
+    if not finetune:
+        model.compile(
+            optimizer = keras.optimizers.Adam(),
+            loss = keras.losses.CategoricalCrossentropy(),
+            metrics='accuracy',
+        )
+    else:
+        model.trainable = True
+        model.compile(
+            optimizer = keras.optimizers.Adam(1e-5),
+            loss = keras.losses.CategoricalCrossentropy(),
+            metrics='accuracy',
+        )
 
-                if step % 5 == 0:
-                    print(
-                        "Training loss (for one batch) at step %d: %.4f"
-                        % (step, float(loss_value))
-                    )
-                    print("Seen so far: %d samples" % ((step + 1) * self.batch))
-                    print(train_metric.result().numpy())
-
-            train_acc = train_acc_metric.result()
-            print("Training acc over epoch: %.4f" % (float(train_acc),))
+def save_model(model, save_path):
+    model.save(save_path + model.name + ".h5")
