@@ -1,33 +1,58 @@
 import tensorflow as tf
-from tensorflow.keras.applications import efficientnet_v2
-from tensorflow.keras.applications import EfficientNetV2B0
+import keras
+from tensorflow.keras.applications import efficientnet_v2, EfficientNetV2B0 
 
-class SelfAttention(tf.keras.layers.Layer):
-    def __init__(self, filters):
-        super(SelfAttention, self).__init__()
-        self.filters = filters
+# global save_path
+# g_save_path = ""
+# def set_save_path(save_path):
+#     global g_save_path
+#     g_save_path = save_path
+#     print("set Global save path is", g_save_path)
+    
+# es_callback = tf.keras.callbacks.EarlyStopping(monitor='loss', patience=3)
+# mc_callback = tf.keras.callbacks.ModelCheckpoint(file_path=g_save_path + "/checkpoints", save_weights_only=True, monitor='val_accuracy', mode='max', save_best_only=True)
 
-    def build(self, input_shape):
-        # self.W_q = self.add_weight(shape=(input_shape[-1], input_shape[-1]), initializer='glorot_uniform', trainable=True, name='W_q')
-        # self.W_k = self.add_weight(shape=(input_shape[-1], input_shape[-1]), initializer='glorot_uniform', trainable=True, name='W_k')
+def get_callbacks(save_path):
+    callbacks = []
+    callbacks.append(tf.keras.callbacks.EarlyStopping(monitor='loss', patience=3))
+    callbacks.append(tf.keras.callbacks.ModelCheckpoint(filepath=save_path + "/checkpoints/", save_weights_only=True, monitor='val_accuracy', mode='max', save_best_only=True))
+    return callbacks
 
-        self.W_q = self.add_weight(name='W_q', shape=(input_shape[-1], self.filters), initializer='uniform', trainable=True)
-        self.W_k = self.add_weight(name='W_k', shape=(input_shape[-1], self.filters), initializer='uniform', trainable=True)
-        self.W_v = self.add_weight(name='W_v', shape=(input_shape[-1], input_shape[-1]), initializer='uniform', trainable=True)
+def get_bd_model(num_classes=7, function="softmax", freeze=True):
+    base_model = EfficientNetV2B0(weights='imagenet')
+    feature_extractor = tf.keras.Model(inputs=base_model.input, outputs=base_model.get_layer('top_activation').output, name=base_model.name+"_FE")
+    if freeze == True:
+        feature_extractor.trainable = False
+    dx1 = tf.keras.layers.Conv2D(64, (3,3), activation="relu")(feature_extractor.output)
+    dx2 = tf.keras.layers.MaxPooling2D()(dx1)
+    dx3 = tf.keras.layers.Flatten()(dx2)
+    dx4 = tf.keras.layers.Dense(128, activation='relu')(dx3)
+    dd1 = tf.keras.layers.Dropout(rate=0.2)(dx4)
+    
+    if not function == "softmax":
+        function = "sigmoid"
+        print("Function error, set sigmoid function.")
+    total_output = tf.keras.layers.Dense(7, activation=function, name="output")(dd1)
+    
+    return tf.keras.Model(feature_extractor.input, total_output, name=base_model.name+"db_"+function)
 
-    def call(self, inputs):
-        q = tf.matmul(inputs, self.W_q)
-        k = tf.matmul(inputs, self.W_k)
-        v = tf.matmul(inputs, self.W_v)
+def set_model_compile(model):
+    model.compile(
+        optimizer = keras.optimizers.Adam(),
+        loss = keras.losses.CategoricalCrossentropy(),
+        metrics='accuracy',
+    )
+
+
+
+class BD_Model(tf.keras.Model):
+    def __init__(self, num_classes=7, freeze=True):
+        super(BD_Model, self).__init__()
+        self.base_model = EfficientNetV2B0(weights='imagenet')
         
-        attention_scores = tf.matmul(q, k, transpose_b=True)
-        # attention_scores = attention_scores / tf.math.sqrt(tf.cast(inputs.shape[-1], dtype=tf.float16))
-        attention_scores = tf.nn.softmax(attention_scores, axis=-1)
+        if freeze:
+            self.base_model.trainable = False
         
-        # output = tf.matmul(attention_scores, inputs)
-        output = tf.matmul(attention_scores, v)
-        
-        return output
 
 class DirtyModel(tf.keras.Model):
     def __init__(self, num_classes=6, freeze=True):
@@ -55,6 +80,6 @@ class DirtyModel(tf.keras.Model):
         return x
 
 if __name__ == '__main__':
-    model = DirtyModel()
+    model = get_bd_model()
     # model.build(input_shape=(None, 224, 224, 3))
     print(model.summary())
