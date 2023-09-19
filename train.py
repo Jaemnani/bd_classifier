@@ -24,7 +24,7 @@ def set_gpu_memory_limit(memory_limit = 8192, device_type="GPU"):
             # 메모리 제한 설정 실패할 경우 예외 처리
             print(e)
 
-def parser_opt():
+def parser_opt(): 
     parser = argparse.ArgumentParser()
     parser.add_argument("--epochs", dest="epochs", type=int, default=30, help="total training epochs")
     parser.add_argument("--finetune_epochs", dest="finetune_epochs", type=int, default=10, help="total finetune epochs")
@@ -32,6 +32,8 @@ def parser_opt():
     parser.add_argument("--broken_dir", dest="broken_dir", type=str, default="./dataset/datasets_broken/")
     parser.add_argument("--dirty_dir", dest="dirty_dir", type=str, default="./dataset/datasets_dirty2/")
     parser.add_argument("--save_dir", dest="save_dir", type=str, default="./outputs/")
+    parser.add_argument("--training", dest="training", type=bool, default=True)
+    # parser.add_argument("--training", dest="training", type=bool, default=False)
     return parser.parse_args()
     
 def set_model_to_train(model, save_path, finetune=False):
@@ -49,14 +51,16 @@ def set_model_compile(model, finetune):
         model.compile(
             optimizer = keras.optimizers.Adam(),
             loss = keras.losses.CategoricalCrossentropy(),
-            metrics='accuracy',
+            # metrics=[keras.metrics.CategoricalAccuracy()], 
+            metrics=[keras.metrics.Precision(), keras.metrics.Recall(), keras.metrics.CategoricalAccuracy()],
         )
     else:
         # model.trainable = True
         model.compile(
             optimizer = keras.optimizers.Adam(1e-5),
             loss = keras.losses.CategoricalCrossentropy(),
-            metrics='accuracy',
+            # metrics=[keras.metrics.CategoricalAccuracy()], 
+            metrics=[keras.metrics.Precision(), keras.metrics.Recall(), keras.metrics.CategoricalAccuracy()],
         )
 
 def save_model(model, save_path):

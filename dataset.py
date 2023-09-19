@@ -7,34 +7,33 @@ import cv2
 def get_broken_labels(broken_dir):
     broken_list = glob(broken_dir+"/**/*.jpg")
     broken_list = natsorted(broken_list)
-    # broken_broken_labels, broken_dirty_onehots = get_dirty_label_from_list(broken_list)
+    # broken_labels_index = np.array([np.round(np.linspace(0,len(broken_list)-1, 5896)).astype(int)]).flatten()
+    # broken_list = np.array(broken_list)[broken_labels_index]
+    broken_list = np.array(broken_list)
     return broken_list, get_broken_labels_from_list(broken_list)
 
 def get_dirty_labels(dirty_dir):
     dirty_list = glob(dirty_dir+"/*.jpg")
-    dirty_list = natsorted(dirty_list)
+    dirty_list = np.array(natsorted(dirty_list))
     return dirty_list, get_dirty_labels_from_list(dirty_list)
 
 def get_broken_labels_from_list(broken_list):
-    broken_broken_labels = np.ones(len(broken_list))
     broken_dirty_onehots = np.zeros((len(broken_list), 7))
     broken_dirty_onehots[:, 0] += 1 # [1, 0, 0, 0, 0, 0, 0]
-    return broken_broken_labels, broken_dirty_onehots
+    return broken_dirty_onehots
 
 def get_dirty_labels_from_list(dirty_list):
-    dirty_broken_labels = np.zeros(len(dirty_list))
     dirty_lbl_list = [name.replace(".jpg", ".txt") for name in dirty_list]
     dirty_lbl_list = np.array(dirty_lbl_list)
     _, labels_eigen_vector = np.linalg.eig(np.diag((1,2,3,4,5,6)))
     dirty_dirty_onehots = np.array([labels_eigen_vector[int(open(lbl_name, 'r').readlines()[0])] for lbl_name in dirty_lbl_list])
     dirty_dirty_onehots = np.hstack((np.zeros(dirty_dirty_onehots.shape[0]).reshape(-1, 1), dirty_dirty_onehots))
-    return dirty_broken_labels, dirty_dirty_onehots
+    return dirty_dirty_onehots
 
 def get_merge_datas(broken_labels, dirty_labels):
     total_image_list = np.append(broken_labels[0], dirty_labels[0])
-    total_broken_labels = np.append(broken_labels[1][0], dirty_labels[1][0])
-    total_dirty_labels = np.concatenate([broken_labels[1][1], dirty_labels[1][1]])
-    return total_image_list, total_broken_labels, total_dirty_labels
+    total_dirty_labels = np.concatenate([broken_labels[1], dirty_labels[1]])
+    return total_image_list, total_dirty_labels
     
 
 class DataGenerator(keras.utils.Sequence):

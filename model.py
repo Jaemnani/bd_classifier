@@ -1,6 +1,14 @@
 import tensorflow as tf
 import keras
+from tensorflow.keras.layers import Layer
 from tensorflow.keras.applications import efficientnet_v2, EfficientNetV2B0 
+
+class CustomReScaling(Layer):
+    def __init__(self):
+        super(CustomReScaling, self).__init__()
+        
+    def call(self, inputs):
+        return inputs/255.
 
 def get_bd_model(num_classes=7, function="softmax", freeze=True):
     base_model = EfficientNetV2B0(weights='imagenet')
