@@ -39,9 +39,8 @@ def test(opt):
         actual.append(onehot)
     actual = np.array(actual)
 
-    # model = keras.models.load_model("./outputs/efficientnetv2-b0_db_softmax_e30+f10_full/efficientnetv2-b0_db_softmax.h5")
-    model = keras.models.load_model("./outputs/efficientnetv2-b0_db_softmax_e30+f10_5876ea/efficientnetv2-b0_db_softmax.h5")
-    # model = keras.models.load_model("./outputs/efficientnetv2-b0_db_softmax_04_quant_default/efficientnetv2-b0_db_softmax.h5")
+    model = keras.models.load_model(opt.model_path)
+    
     
 
     input_shape = model.input_shape[1:]
@@ -94,6 +93,11 @@ def test(opt):
 
 def parser_opt(): 
     parser = argparse.ArgumentParser()
+    # parser.add_argument("--model_path", dest="model_path", type=str, default="./outputs/efficientnetv2-b0_db_softmax_e30+f10_5876ea/efficientnetv2-b0_db_softmax.h5")
+    parser.add_argument("--model_path", dest="model_path", type=str, default="./outputs/efficientnetv2-b0_db_softmax_e30+f10_full/efficientnetv2-b0_db_softmax.h5")
+    # parser.add_argument("--model_path", dest="model_path", type=str, default="./outputs/efficientnetv2-b0_db_softmax_04_quant_default/efficientnetv2-b0_db_softmax.h5")
+    
+    
     parser.add_argument("--broken_dir", dest="broken_dir", type=str, default="./dataset/datasets_broken/")
     parser.add_argument("--dirty_dir", dest="dirty_dir", type=str, default="./dataset/datasets_dirty2/")
     # parser.add_argument("--batch_size", dest="batch_size", type=int, default=1, help="total batch size")
