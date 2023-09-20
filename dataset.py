@@ -6,10 +6,7 @@ import cv2
 
 def get_broken_labels(broken_dir):
     broken_list = glob(broken_dir+"/**/*.jpg")
-    broken_list = natsorted(broken_list)
-    # broken_labels_index = np.array([np.round(np.linspace(0,len(broken_list)-1, 5896)).astype(int)]).flatten()
-    # broken_list = np.array(broken_list)[broken_labels_index]
-    broken_list = np.array(broken_list)
+    broken_list = np.array(natsorted(broken_list))
     return broken_list, get_broken_labels_from_list(broken_list)
 
 def get_dirty_labels(dirty_dir):

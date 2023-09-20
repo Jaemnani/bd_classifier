@@ -26,6 +26,9 @@ def set_gpu_memory_limit(memory_limit = 8192, device_type="GPU"):
 
 def parser_opt(): 
     parser = argparse.ArgumentParser()
+    parser.add_argument("--num_classes", dest="num_classes", type=int, default=7, help="number of classes")
+    parser.add_argument("--function", dest="function", type=str, default="softmax", help= "softmax or sigmoid")
+    parser.add_argument("--freeze", dest="freeze", type=bool, default=True, help="Freezing transfer model")
     parser.add_argument("--epochs", dest="epochs", type=int, default=30, help="total training epochs")
     parser.add_argument("--finetune_epochs", dest="finetune_epochs", type=int, default=10, help="total finetune epochs")
     parser.add_argument("--batch_size", dest="batch_size", type=int, default=32, help="total batch size")
