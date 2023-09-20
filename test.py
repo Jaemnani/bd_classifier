@@ -93,8 +93,8 @@ def test(opt):
 
 def parser_opt(): 
     parser = argparse.ArgumentParser()
-    # parser.add_argument("--model_path", dest="model_path", type=str, default="./outputs/efficientnetv2-b0_db_softmax_e30+f10_5876ea/efficientnetv2-b0_db_softmax.h5")
-    parser.add_argument("--model_path", dest="model_path", type=str, default="./outputs/efficientnetv2-b0_db_softmax_e30+f10_full/efficientnetv2-b0_db_softmax.h5")
+    # parser.add_argument("--model_path", dest="model_path", type=str, default="./outputs/efficientnetv2-b0_db_softmax_e30+f10_5876ea/efficientnetv2-b0_db_softmax_e30+f10_5876.h5")
+    parser.add_argument("--model_path", dest="model_path", type=str, default="./outputs/efficientnetv2-b0_db_softmax_e30+f10_full/efficientnetv2-b0_db_softmax_e30+f10_full.h5")
     # parser.add_argument("--model_path", dest="model_path", type=str, default="./outputs/efficientnetv2-b0_db_softmax_04_quant_default/efficientnetv2-b0_db_softmax.h5")
     
     

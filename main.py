@@ -35,7 +35,6 @@ def main(opt):
     total_output = tf.keras.layers.Dense(opt.num_classes, activation=opt.function, name="output")(dd1)
     
     model = tf.keras.Model(feature_extractor.input, total_output, name=base_model.name+"_db_"+opt.function)
-
     
     train_datas = DataGenerator(train_x, train_y, opt.batch_size, model.input_shape)
     valid_datas = DataGenerator(valid_x, valid_y, opt.batch_size, model.input_shape)
