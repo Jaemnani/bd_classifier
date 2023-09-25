@@ -5,7 +5,6 @@ import cv2
 import argparse
 from glob2 import glob
 from natsort import natsorted
-# import tensorflow as tf
 from train import set_gpu_memory_growth
 from dataset import get_broken_labels, get_dirty_labels, get_merge_datas
 from sklearn.model_selection import train_test_split
@@ -18,7 +17,6 @@ def test(opt):
     total_image_list, total_dirty_labels = get_merge_datas(broken_labels, dirty_labels)
 
     train_X, test_x, train_Y, test_y = train_test_split(total_image_list, total_dirty_labels, test_size=2000./len(total_image_list), random_state=42)
-    # train_x, valid_x, train_y, valid_y = train_test_split(train_X, train_Y, test_size = 0.1, random_state=42)
     
     # img_list = glob("./test_images/*.jpg") # # for test 22 images
     img_list = test_x
@@ -94,8 +92,10 @@ def test(opt):
 def parser_opt(): 
     parser = argparse.ArgumentParser()
     # parser.add_argument("--model_path", dest="model_path", type=str, default="./outputs/efficientnetv2-b0_db_softmax_e30+f10_5876ea/efficientnetv2-b0_db_softmax_e30+f10_5876.h5")
-    parser.add_argument("--model_path", dest="model_path", type=str, default="./outputs/efficientnetv2-b0_db_softmax_e30+f10_full/efficientnetv2-b0_db_softmax_e30+f10_full.h5")
-    # parser.add_argument("--model_path", dest="model_path", type=str, default="./outputs/efficientnetv2-b0_db_softmax_04_quant_default/efficientnetv2-b0_db_softmax.h5")
+    # parser.add_argument("--model_path", dest="model_path", type=str, default="./outputs/efficientnetv2-b0_db_softmax_e30+f10_full/efficientnetv2-b0_db_softmax_e30+f10_full.h5")
+    
+    parser.add_argument("--model_path", dest="model_path", type=str, default="./outputs/efficientnetv2-b0_db_softmax_normal_test/efficientnetv2-b0_db_softmax.h5")
+    # parser.add_argument("--model_path", dest="model_path", type=str, default="./outputs/efficientnetv2-b0_db_softmax_quant_test/efficientnetv2-b0_db_softmax.h5")
     
     
     parser.add_argument("--broken_dir", dest="broken_dir", type=str, default="./dataset/datasets_broken/")
