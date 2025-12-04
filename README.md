@@ -28,8 +28,8 @@
 * 단순 클래스 정확도(Accuracy)뿐만 아니라, **"실제 조치가 필요한가?"**에 대한 이진 분류 성능(Precision/Recall)을 별도로 측정합니다.
 
 ## 🛠️ Requirements
-Bash
-```
+
+```Bash
 pip install tensorflow numpy opencv-python glob2 natsort scikit-learn
 ```
 ## 💾 Dataset Setup
@@ -41,16 +41,16 @@ pip install tensorflow numpy opencv-python glob2 natsort scikit-learn
     * `.txt` 파일 내부에는 오염도 레벨(`0`~`5`) 정수 하나가 적혀 있어야 합니다.
 ## 💻 Usage
 ## 1. Training (학습)
-Bash
-```
+
+```Bash
 python main.py --epochs 30 --finetune_epochs 10 --batch_size 32 --save_dir ./outputs/
 ```
 * `--epochs`: 1단계(Freeze) 학습 에폭 수 (기본: 30)
 * `--finetune_epochs`: 2단계(Fine-tuning) 학습 에폭 수 (기본: 10)
 * `--save_dir`: 모델 저장 경로
 ## 2. Evaluation (테스트)
-Bash
-```
+
+```Bash
 python test.py --model_path ./outputs/your_model_path/model.h5
 ```
 테스트 결과는 두 가지 관점으로 출력됩니다:
